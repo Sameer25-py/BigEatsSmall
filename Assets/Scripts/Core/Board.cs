@@ -1,12 +1,9 @@
-using System.Collections.Generic;
-using System.Linq;
-
 namespace BigEatsSmall.Core
 {
     public class Board
     {
-        private readonly int _columns = 3;
-        private readonly int _rows = 3;
+        private const int _columns = 3;
+        private const int _rows = 3;
 
         public Board()
         {
@@ -16,16 +13,6 @@ namespace BigEatsSmall.Core
 
         public int[][] Grid { get; }
 
-        public (int, int) FlatTo2DIndex(int flatIndex)
-        {
-            return (flatIndex / _rows, flatIndex % _columns);
-        }
-
-        public int _2DToFlatIndex(int row, int column)
-        {
-            return row * _rows + column;
-        }
-
         public void ResetGrid()
         {
             for (var i = 0; i < _rows; i++)
@@ -33,29 +20,18 @@ namespace BigEatsSmall.Core
                 Grid[i][j] = -1;
         }
 
-        public void MarkGridBox(int playerValue, int flatIndex)
+        public void MarkGridBox(int row, int column, int playerValue)
         {
-            var (row, column) = FlatTo2DIndex(flatIndex);
-            Grid[row][column] = playerValue;
+            if (IsIndexEmpty(row, column)) Grid[row][column] = playerValue;
         }
 
-        public bool IsIndexEmpty(int flatIndex)
+        public bool IsIndexEmpty(int row, int column)
         {
-            var (row, column) = FlatTo2DIndex(flatIndex);
             return Grid[row][column] == -1;
         }
 
-        public List<int> GetAllEmptyIndicesFlatten()
-        {
-            var result = new List<int>();
-            for (var i = 0; i < _rows; i++)
-            for (var j = 0; j < _columns; j++)
-                if (Grid[i][j] == -1)
-                    result.Add(_2DToFlatIndex(i, j));
-            return result;
-        }
 
-        public (bool, List<int>) CheckForWin(int playerValue)
+        public (bool, (int, int)[]) CheckForWin(int playerValue)
         {
             var tempResult = (false, new (int, int)[3]);
             for (var i = 0; i < 3; i++)
@@ -86,7 +62,7 @@ namespace BigEatsSmall.Core
             }
 
             return (tempResult.Item1,
-                tempResult.Item2.ToList().Select(x => _2DToFlatIndex(x.Item1, x.Item2)).ToList());
+                tempResult.Item2);
         }
     }
 }
